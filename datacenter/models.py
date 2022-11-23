@@ -2,8 +2,7 @@ from django.db import models
 from django.utils.timezone import localtime
 
 
-def format_duration(delta):
-    seconds = int(delta.total_seconds())
+def format_duration(seconds):
 
     days = str(seconds // 3600 // 24) + 'д.' if seconds >= 86400 else ''
     hours = str(seconds // 3600 % 24).rjust(2, '0')
@@ -44,12 +43,9 @@ class Visit(models.Model):
         if not leaved_at:
             leaved_at = localtime()
 
-        return leaved_at - localtime(self.entered_at)
+        return int((leaved_at - localtime(self.entered_at)).total_seconds())
 
     def is_long(self, minutes=60):
         duration = self.get_duration(self.leaved_at)
 
-        if int(duration.total_seconds()) > minutes * 60:
-            return True
-        else:
-            return False
+        return duration > minutes * 60
